@@ -1,0 +1,119 @@
+@font-face {
+
+    font-family: SatoshiReg;
+  
+    src: url(/src/assets/fonts/Satoshi_Complete/Fonts/OTF/Satoshi-Regular.otf)
+  }
+  
+  .custom-font {
+    font-family: SatoshiReg;
+  }
+  
+  .welcome-login h4 {
+    display: flex;
+    align-items: left;
+    justify-content: left;
+    height: 100%;
+    padding-top: 60%;
+  }
+  
+  .welcome-login h3 {
+    display: flex;
+    align-items: left;
+    justify-content: left;
+    height: 100%;
+  }
+  
+  .rounded-top-left {
+    border-top-left-radius: 10%; /* Adjust the value to control the roundedness */
+    overflow: hidden;
+  }
+  
+  @media (max-width: 767px) {
+    .col-md-4 {
+      display: none;
+    }
+  
+    .col-md-8 {
+      width: 100%;
+    }
+  }
+  
+  @media (min-width: 768px) {
+    .col-md-4 {
+      flex: 0 0 50%;
+      max-width: 50%;
+    }
+  
+    .col-md-8 {
+      flex: 0 0 50%;
+      max-width: 50%;
+    }
+  }
+  
+  
+  @font-face {
+  
+    font-family: SatoshiReg;
+  
+    src: url(/src/assets/fonts/Satoshi_Complete/Fonts/OTF/Satoshi-Regular.otf)
+  }
+  
+  .custom-font {
+    font-family: SatoshiReg;
+  }
+  
+  .welcome-login h4 {
+    display: flex;
+    align-items: left;
+    justify-content: left;
+    height: 100%;
+    padding-top: 60%;
+  }
+  
+  .welcome-login h3 {
+    display: flex;
+    align-items: left;
+    justify-content: left;
+    height: 100%;
+  }
+  
+  .rounded-top-left {
+    border-top-left-radius: 10%; /* Adjust the value to control the roundedness */
+    overflow: hidden;
+  }
+  
+  @media (max-width: 767px) {
+    .col-md-4 {
+      display: none;
+    }
+  
+    .col-md-8 {
+      width: 100%;
+    }
+  }
+  
+  @media (min-width: 768px) {
+    .col-md-4 {
+      flex: 0 0 50%;
+      max-width: 50%;
+    }
+  
+    .col-md-8 {
+      flex: 0 0 50%;
+      max-width: 50%;
+    }
+  } 
+  
+  .login-btn-christian{
+    border: none !important;
+  }
+  .login-btn-christian:hover{
+    background-color: #F24C3D !important;
+    color: #f0f0f0 !important;
+  }
+  
+  .custom-vh {
+    margin: 0;
+    padding: 0;
+  }

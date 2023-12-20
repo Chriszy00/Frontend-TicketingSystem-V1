@@ -1,0 +1,135 @@
+@font-face {
+  font-family: SatoshiReg;
+  src: url(/src/assets/fonts/Satoshi_Complete/Fonts/OTF/Satoshi-Regular.otf)
+}
+@font-face {
+  font-family: SatoshiBold;
+  src: url(/src/assets/fonts/Satoshi_Complete/Fonts/OTF/Satoshi-Bold.otf);
+}
+@font-face {
+  font-family: SatoshiLight;
+  src: url(/src/assets/fonts/Satoshi_Complete/Fonts/OTF/Satoshi-Light.otf);
+}
+@font-face {
+  font-family: SatoshiMed;
+  src: url(/src/assets/fonts/Satoshi_Complete/Fonts/OTF/Satoshi-Medium.otf);
+}
+@font-face {
+  font-family: SatoshiBlack;
+  src: url(/src/assets/fonts/Satoshi_Complete/Fonts/OTF/Satoshi-Black.otf);
+}
+
+.custom-font {
+  font-family: SatoshiReg;
+}
+
+a {
+  text-decoration: none !important;
+}
+
+.bg {
+  background-color: #f0f0f0;
+}
+
+.wrapper {
+  min-height: 100vh;
+  display: flex;
+}
+
+ /* .image-holder {
+  background: url("../../assets/images/jumpstart.png") no-repeat;
+  background-size: cover;
+  width: 290px;
+  height: 95px;
+  margin-left: 5%;
+  padding: 0;
+ } */
+
+.image-holder img {
+  display: none;
+} 
+
+.rounded-top-left {
+  border-top-left-radius: 10% !important; /* Adjust the value to control the roundedness */
+  overflow: hidden !important;
+}
+
+.welcome-register{
+  padding-top: 40%;
+}
+.welcome-register h4 {
+  display: flex;
+  align-items: left;
+  justify-content: left;
+  height: 100%;
+}
+
+.welcome-register h2 {
+  display: flex;
+  align-items: left;
+  justify-content: left;
+  height: 100%;
+}
+
+form {
+  width: 100%;
+}
+
+.form-inner {
+  background-color: #ffffff;
+}
+
+.password-validation-box {
+  border: 1px solid #299eb3;
+  border-radius: 25px;
+  background-color: #e7f0f7;
+  padding: 10px;
+  margin-top: 10px;
+}
+
+.invalid-input {
+  border-color: red;
+}
+
+.password-validation li {
+  list-style-type: none; /* Hide bullet points */
+}
+
+.password-validation .check {
+  color: green; /* Apply green color to check mark */
+}
+
+.password-validation .wrong {
+  color: red; /* Apply red color to wrong mark */
+}
+
+.btn-custom {
+  background-color: #d0472f !important;
+  color: white !important;
+  border: none !important;
+}
+
+
+.custom-button {
+  background-color: #f2be22 !important;
+  color:black !important;
+  font-family: SatoshiMed !important;
+}
+
+.smaller-logo {
+  width: 20% !important; /* Adjust the width as needed */
+  height: 20px !important; /* Maintain aspect ratio */
+}
+
+.TC{
+  color: #299eb3 !important;
+}
+
+.custom-text {
+  color: #299eb3 !important;
+}
+
+.custom-vh {
+  margin: 0 !important;
+  padding: 0 !important;
+}
