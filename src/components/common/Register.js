@@ -277,7 +277,7 @@ const Register = () => {
                   <div className="card-footer bg-transparent py-5 mt-5 border-1">
                     <div className="text-center">
                       <span className="fs-6 text-muted">
-                        By continuing, you agree to the Merry on Wheels{" "}
+                        By continuing, you agree to the DigiDesk{" "}
                         <Link to="/termsandconditions" className="TC fw-bold">
                           Terms and Conditions
                         </Link>
