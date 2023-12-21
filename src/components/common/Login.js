@@ -52,7 +52,7 @@ function Login() {
               <img src="#!" alt="logo" />
             </div>
             <h4 className="text-muted ms-5 pt-1">Welcome Back</h4>
-            <h2 className="ms-5 pt-2">Sign in to DigiDesk</h2>
+            <h2 className="ms-5 pt-2">Sign in to&nbsp;<a href="/" className="text-decoration-none text-black fw-bold">DigiDesk</a></h2>
           </div>
         </div>
         <div className="col-md-8 p-0">

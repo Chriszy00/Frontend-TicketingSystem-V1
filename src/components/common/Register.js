@@ -148,7 +148,7 @@ const Register = () => {
 
             <div className="custome-font">
               <h4 className="text-muted ms-5 pt-1">
-                Welcome to DigiDesk
+                Welcome to&nbsp; <a href="/" className="text-decoration-none text-muted fw-bold"> DigiDesk</a>
               </h4>
               <h2 className="ms-5 pt-2">Create Your Account</h2>
             </div>
