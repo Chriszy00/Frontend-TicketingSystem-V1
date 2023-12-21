@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Home from "./components/common/Home";
 import Register from "./components/common/Register";
 import Login from "./components/common/Login";
+import TicketForm from "./components/common/TicketForm";
 
 
 class App extends Component {
@@ -13,6 +14,8 @@ class App extends Component {
           <Route path="/" element={<Home/>} />
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/ticket" element={<TicketForm/>} />
+
         </Routes>
       </Router>
     );
