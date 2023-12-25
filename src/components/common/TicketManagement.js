@@ -4,11 +4,36 @@ import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+// import { BsEye, BsPencil, BsTrash } from "react-icons/bs";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEye, faPencilAlt, faTrash } from "@fortawesome/free-solid-svg-icons";
 
 const TicketManagement = () => {
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  // const [isDarkMode, setIsDarkMode] = useState(false);
   const navigate = useNavigate();
   const [status, setStatus] = useState([]);
+  const [priorities, setPriorities] = useState({});
+
+  useEffect(() => {
+    fetchPriorities().then((data) => setPriorities(data));
+  }, []);
+
+  const fetchPriorities = async () => {
+    try {
+      const response = await axios.get(
+        "http://localhost:8080/api/priorities" // Replace with your actual endpoint
+      );
+      if (response.status === 200) {
+        return response.data;
+      } else {
+        console.log("Error fetching priorities");
+        return [];
+      }
+    } catch (error) {
+      console.error("Error fetching priorities:", error.response.data);
+      return [];
+    }
+  };
 
   useEffect(() => {
     fetchtTickets().then((r) => console.log("Status Fetched"));
@@ -32,7 +57,7 @@ const TicketManagement = () => {
   const handleLogout = () => {
     // Clear local storage
     localStorage.clear();
-  
+
     // Ensure local storage is cleared before navigating
     setTimeout(() => {
       console.log("Logged out");
@@ -40,17 +65,30 @@ const TicketManagement = () => {
     }, 0);
   };
 
-  const handleResovle = async (id) => {
+  // const [disableApproveButton, setDisableApproveButton] = useState(false);
+  // const [disableDenyButton, setDisableDenyButton] = useState(false);
+
+  const handleResolve = async (id) => {
     try {
       const response = await axios.put(
         `http://localhost:8080/ticket/management/${id}/resolved`
       );
       if (response.status === 200) {
-        setStatus((status) =>
-          status.map((status) =>
-            status.id === id ? { ...status, status: "Resolved" } : status
+        // Update the status in the UI
+        setStatus((prevStatus) =>
+          prevStatus.map((status) =>
+            status.ticketId === id ? { ...status, status: "Resolved" } : status
           )
         );
+
+        // Update the status in the local state
+        setStatus((prevStatus) =>
+          prevStatus.map((status) =>
+            status.ticketId === id ? { ...status, status: "Resolved" } : status
+          )
+        );
+
+        // Toast and log messages
         toast.success("Ticket Resolved", {
           position: "top-right",
           autoClose: 3000,
@@ -59,11 +97,12 @@ const TicketManagement = () => {
           pauseOnHover: true,
           draggable: true,
         });
+        console.log(`Ticket ${id} resolved successfully`);
       } else {
         console.log("Error resolving ticket");
       }
     } catch (error) {
-      console.error("Error resolving ticket:", error.response.data); // Handle error response
+      console.error("Error resolving ticket:", error.response.data);
     }
   };
 
@@ -73,11 +112,21 @@ const TicketManagement = () => {
         `http://localhost:8080/ticket/management/${id}/assigned`
       );
       if (response.status === 200) {
-        setStatus((status) =>
-          status.map((status) =>
-            status.id === id ? { ...status, status: "Assigned" } : status
+        // Update the status in the UI
+        setStatus((prevStatus) =>
+          prevStatus.map((status) =>
+            status.ticketId === id ? { ...status, status: "Assigned" } : status
           )
         );
+
+        // Update the status in the local state
+        setStatus((prevStatus) =>
+          prevStatus.map((status) =>
+            status.ticketId === id ? { ...status, status: "Assigned" } : status
+          )
+        );
+
+        // Toast and log messages
         toast.success("Ticket Assigned", {
           position: "top-right",
           autoClose: 3000,
@@ -86,24 +135,51 @@ const TicketManagement = () => {
           pauseOnHover: true,
           draggable: true,
         });
+        console.log(`Ticket ${id} assigned successfully`);
       } else {
         console.log("Error assigning ticket");
       }
     } catch (error) {
-      console.error("Error assigning ticket:", error.response.data); // Handle error response
+      console.error("Error assigning ticket:", error.response.data);
     }
   };
 
-  const userID = localStorage.getItem("userId");
+  const deleteTicket = async (id) => {
+    try {
+      const token = localStorage.getItem("accessToken");
+      const headers = {
+        Authorization: "Bearer " + token,
+      };
+      await axios.delete(`http://localhost:8080/api/ticket/deleteTicket/${id}`, { headers });
 
-  const handleSwitchChange = () => {
-    setIsDarkMode((prevMode) => !prevMode);
+      // Fetch the updated list of tickets after successful deletion
+      fetchtTickets().then(() => {
+        // Toast and log messages
+        toast.success("User Deleted", {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
+        console.log(`Ticket ${id} deleted successfully`);
+      });
+    } catch (error) {
+      console.error("Error deleting ticket:", error.response.data);
+    }
   };
+
+  // const userID = localStorage.getItem("userId");
+
+  // const handleSwitchChange = () => {
+  //   setIsDarkMode((prevMode) => !prevMode);
+  // };
 
   return (
     <div>
       <section id="sidebar">
-        <a href="!#" className="brand">
+        <a href="/" className="brand">
           <i className="bx bx-desktop"></i>
           <span className="text">DigiDesk</span>
         </a>
@@ -114,15 +190,10 @@ const TicketManagement = () => {
               <span className="text">Dashboard</span>
             </a>
           </li>
-          <li>
-            <Link to="/user-management">
-              <i className="bx bxs-cart-alt"></i>
-              <span className="text">User Management</span>
-            </Link>
-          </li>
+
           <li className="active">
             <Link to="/ticket-management">
-              <i className="bx bxs-message-dots"></i>
+              <i className="bx bxs-book-alt"></i>
               <span className="text">Ticket Management</span>
             </Link>
           </li>
@@ -131,7 +202,9 @@ const TicketManagement = () => {
           <li>
             <a href="/" className="logout">
               <i className="bx bxs-log-out-circle"></i>
-              <span className="text" onClick={handleLogout}>Logout</span>
+              <span className="text" onClick={handleLogout}>
+                Logout
+              </span>
             </a>
           </li>
         </ul>
@@ -140,7 +213,7 @@ const TicketManagement = () => {
       <section id="content">
         <main id="adminDashboard">
           <div className="head-title">
-            <div className="left pt-5 pb-4">
+            <div className="left pt-4 pb-4">
               <h1 className="mb-0">Ticket Dashboard</h1>
             </div>
           </div>
@@ -154,12 +227,12 @@ const TicketManagement = () => {
                     <table className="w-full whitespace-no-wrap">
                       <thead>
                         <tr className="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase border-b dark:border-gray-700 bg-gray-50 dark:text-gray-400 dark:bg-gray-800 custom-font-bold">
-                          <th className="px-4 py-3">User ID</th>
-                          <th className="px-4 py-3">Last Name</th>
-                          <th className="px-4 py-3">Email</th>
-                          <th className="px-4 py-3">Priority</th>
-                          <th className="px-4 py-3">Status</th>
-                          <th className="px-4 py-3" colSpan="3">
+                          <th className="px-4 py-3 ">User ID</th>
+                          <th className="px-4 py-3 ">Last Name</th>
+                          <th className="px-4 py-3 text-center">Email</th>
+                          {/* <th className="px-4 py-3 text-center">Priority</th> */}
+                          <th className="px-4 py-3 text-center">Status</th>
+                          <th className="px-4 py-3 text-center" colSpan="5">
                             Actions
                           </th>
                         </tr>
@@ -179,41 +252,82 @@ const TicketManagement = () => {
                             <td className="px-4 py-3">
                               {application.creator.email}
                             </td>
-                            <td className="px-4 py-3">
-                              {application.priority}
-                            </td>
-                            {/* Status as a select element */}
-                            <td className="px-4 py-3">
+                            {/* <td className="px-4 py-3">
                               <select
-                                value={application.status.toLowerCase()}
-                                // onChange={(e) => handleStatusChange(e, application.ticketId)}
                                 className="form-select"
+                                defaultValue=""
+                                onChange={(e) => {
+                                  const selectedPriority = e.target.value;
+                                  // Update the state with the selected priority
+                                  setPriorities((prevPriorities) => ({
+                                    ...prevPriorities,
+                                    selectedPriority,
+                                  }));
+                                }}
                               >
-                                <option value="assigned">Assigned</option>
-                                <option value="pending">Pending</option>
-                                <option value="resolved">Resolved</option>
+                                <option value="" disabled>
+                                  Select Priority
+                                </option>
+                                {priorities.map((priority) => (
+                                  <option
+                                    key={priority.id}
+                                    value={priority.name}
+                                  >
+                                    {priority.name}
+                                  </option>
+                                ))}
                               </select>
-                            </td>
+                            </td> */}
+
+                            {/* Display the status from the database */}
+                            <td className="px-4 py-3">{application.status}</td>
+
                             {/* Actions buttons */}
                             <td className="px-4 py-3 fs-1">
-                              <button
-                                className="btn btn-primary me-2"
-                                // onClick={() => handleView(application.id)}
-                              >
-                                View
-                              </button>
-                              <button
-                                className="ml-2 btn btn-success me-2"
-                                // onClick={() => handleEdit(application.id)}
-                              >
-                                Edit
-                              </button>
-                              <button
-                                className="ml-2 btn btn-danger"
-                                // onClick={() => handleDelete(application.id)}
-                              >
-                                Delete
-                              </button>
+                              <div className="btn-group">
+                                <button
+                                  className="btn btn-primary me-2 rounded-1"
+                                  onClick={() =>
+                                    handleResolve(application.ticketId)
+                                  }
+                                >
+                                  Resolved
+                                </button>
+                                <button
+                                  className="ml-2 btn btn-success me-2 rounded-1"
+                                  onClick={() =>
+                                    handleAssign(application.ticketId)
+                                  }
+                                >
+                                  Assigned
+                                </button>
+                                <button
+                                  className="btn btn-outline-primary btn-sm me-2 rounded-1 border-2"
+                                  // onClick={() => handleView(application.id)}
+                                >
+                                  <FontAwesomeIcon icon={faEye} />
+                                </button>
+                                <button
+                                  className="btn btn-outline-success btn-sm me-2 rounded-1 border-2"
+                                  // onClick={() => handleEdit(application.id)}
+                                >
+                                  <FontAwesomeIcon icon={faPencilAlt} />
+                                </button>
+                                <button
+                                  className="btn btn-outline-danger btn-sm rounded-1 border-2"
+                                  onClick={() => {
+                                    if (
+                                      window.confirm(
+                                        "Are you sure you want to delete this user?"
+                                      )
+                                    ) {
+                                      deleteTicket(application.ticketId);
+                                    }
+                                  }}
+                                >
+                                  <FontAwesomeIcon icon={faTrash} />
+                                </button>
+                              </div>
                             </td>
                           </tr>
                         ))}

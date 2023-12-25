@@ -20,12 +20,12 @@ class App extends Component {
         <Routes>
           <Route path="/" element={<Landing />} />
           {/* <Route path="/" element={<Home/>} /> */}
-          <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/admin/register" element={<Register />} />
           <Route path="/ticket" element={<TicketForm/>} />
           <Route path="/message" element={<Message />} />
-          <Route path="/ticket-management" element={<TicketManagement/>} />
-          <Route path="/user-management" element={<UserManagement/>} />
+          <Route path="/internal/ticket-management" element={<TicketManagement/>} />
+          <Route path="/admin/user-management" element={<UserManagement/>} />
         </Routes>
       </Router>
     );

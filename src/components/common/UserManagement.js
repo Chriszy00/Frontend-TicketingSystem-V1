@@ -4,6 +4,8 @@ import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEye, faPencilAlt, faTrash } from "@fortawesome/free-solid-svg-icons";
 
 const UserManagement = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -17,7 +19,7 @@ const UserManagement = () => {
   const fetchtUsers = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:8080/user/management/allUsers"
+        "http://localhost:8080/user/management/allUsers" 
       );
       if (response.status === 200) {
         setUsers(response.data);
@@ -26,6 +28,32 @@ const UserManagement = () => {
       }
     } catch (error) {
       console.error("Error fetching users:", error.response.data); // Handle error response
+    }
+  };
+
+  const deleteUser = async (id) => {
+    try {
+      const token = localStorage.getItem("accessToken");
+      const headers = {
+        Authorization: "Bearer " + token,
+      };
+      await axios.delete(`http://localhost:8080/user/management/deleteUser/${id}`, { headers });
+
+      // Fetch the updated list of tickets after successful deletion
+      fetchtUsers().then(() => {
+        // Toast and log messages
+        toast.success("User Deleted", {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
+        console.log(`Ticket ${id} deleted successfully`);
+      });
+    } catch (error) {
+      console.error("Error deleting ticket:", error.response.data);
     }
   };
 
@@ -43,7 +71,7 @@ const UserManagement = () => {
   return (
     <div>
       <section id="sidebar">
-        <a href="!#" className="brand">
+        <a href="/" className="brand">
           <i className="bx bx-desktop"></i>
           <span className="text">DigiDesk</span>
         </a>
@@ -56,14 +84,8 @@ const UserManagement = () => {
           </li>
           <li className="active">
             <Link to="/user-management" id="orderManagementBtn">
-              <i className="bx bxs-cart-alt"></i>
+              <i className="bx bxs-user"></i>
               <span className="text">User Management</span>
-            </Link>
-          </li>
-          <li className="">
-            <Link to="/ticket-management">
-              <i className="bx bxs-message-dots"></i>
-              <span className="text">Ticket Management</span>
             </Link>
           </li>
         </ul>
@@ -80,7 +102,7 @@ const UserManagement = () => {
       <section id="content">
         <main id="adminDashboard">
           <div className="head-title">
-            <div className="left pt-5 pb-4">
+            <div className="left pt-4 pb-4">
               <h1 className="mb-0">User Dashboard</h1>
             </div>
           </div>
@@ -121,26 +143,34 @@ const UserManagement = () => {
                             <td className="px-4 py-3">
                               {application.email}
                             </td>
-                            {/* Actions buttons */}
-                            <td className="px-4 py-3 fs-1">
-                              <button
-                                className="btn btn-primary me-2"
-                                // onClick={() => handleView(application.id)}
-                              >
-                                View
-                              </button>
-                              <button
-                                className="ml-2 btn btn-success me-2"
-                                // onClick={() => handleEdit(application.id)}
-                              >
-                                Edit
-                              </button>
-                              <button
-                                className="ml-2 btn btn-danger"
-                                // onClick={() => handleDelete(application.id)}
-                              >
-                                Delete
-                              </button>
+                           {/* Actions buttons */}
+                           <td className="px-4 py-3 fs-1">
+                              <div className="btn-group">
+                                <button
+                                  className="btn btn-outline-primary btn-sm me-3 rounded-1 border-2"
+                                >
+                                  <FontAwesomeIcon icon={faEye} />
+                                </button>
+                                <button
+                                  className="btn btn-outline-success btn-sm me-3 rounded-1 border-2"
+                                >
+                                  <FontAwesomeIcon icon={faPencilAlt} />
+                                </button>
+                                <button
+                                  className="btn btn-outline-danger btn-sm rounded-1 border-2"
+                                  onClick={() => {
+                                    if (
+                                      window.confirm(
+                                        "Are you sure you want to delete this user?"
+                                      )
+                                    ) {
+                                      deleteUser(application.id);
+                                    }
+                                  }}
+                                >
+                                  <FontAwesomeIcon icon={faTrash} />
+                                </button>
+                              </div>
                             </td>
                           </tr>
                         ))}

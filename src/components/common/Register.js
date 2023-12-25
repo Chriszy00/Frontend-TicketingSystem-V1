@@ -10,6 +10,8 @@ const Register = () => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
+  const [selectedRole, setSelectedRole] = useState(""); // ["user", "admin", "internal"] - default: "user"
+  const [roles, setRoles] = useState([]);
   const [firstNameError, setFirstNameError] = useState("");
   const [lastNameError, setLastNameError] = useState("");
   const [emailError, setEmailError] = useState("");
@@ -20,8 +22,22 @@ const Register = () => {
   const [passwordLowerCaseValid, setPasswordLowerCaseValid] = useState(false);
   const [passwordNumberValid, setPasswordNumberValid] = useState(false);
   const [passwordSymbolValid, setPasswordSymbolValid] = useState(false);
+  const [open, setOpen] = useState(false);
 
- 
+  useEffect(() => {
+    fetchRoles();
+  }, []);
+
+  const fetchRoles = async () => {
+    try {
+      const response = await fetch("http://localhost:8080/api/roles");
+      const data = await response.json();
+      setRoles(data);
+    } catch (error) {
+      console.log("Failed to fetch roles:", error);
+    }
+  };
+
   const handleInputChange = (event) => {
     const { name, value } = event.target;
     if (name === "firstName") {
@@ -39,6 +55,8 @@ const Register = () => {
       if (emailError) {
         setEmailError("");
       }
+    } else if (name === "selectedRole") {
+      setSelectedRole(value);
     }
   };
 
@@ -53,7 +71,13 @@ const Register = () => {
       lastName,
       email,
       password,
+      role: selectedRole,
     };
+
+    if (!selectedRole) {
+      notification.info("Please select a role");
+      return;
+    }
 
     try {
       await axios.post("http://localhost:8080/api/auth/signup", newUser);
@@ -131,11 +155,40 @@ const Register = () => {
     setPasswordSymbolValid(passwordSymbolValid);
   };
 
+  const showModal = () => {
+    setOpen(true);
+  };
+
+  const handleOk = () => {
+    if (!selectedRole) {
+      notification.error({
+        message: "DigiDesk APP",
+        description: "Please select a role",
+      });
+    } else {
+      setTimeout(() => {
+        notification.info({
+          message: "Selected Role",
+          description: `You have selected the role: ${selectedRole.replace("ROLE_", "")}`,
+        });
+      }, 500);
+    }
+    setOpen(false);
+  };
+
+  const handleCancel = () => {
+    setOpen(false);
+  };
 
   let passwordInputClass = "form-control";
   if (password !== "" && !passwordValid) {
     passwordInputClass += " is-invalid";
   }
+
+  // Filter out the "ADMINISTRATOR" role from the roles array
+  const filteredRoles = roles.filter(
+    (role) => role.name !== "ROLE_ADMINISTRATOR"
+  );
 
   return (
     <div className="container-fluid min-vh-100 bg custom-font custom-vh">
@@ -148,7 +201,11 @@ const Register = () => {
 
             <div className="custome-font">
               <h4 className="text-muted ms-5 pt-1">
-                Welcome to&nbsp; <a href="/" className="text-decoration-none text-muted fw-bold"> DigiDesk</a>
+                Welcome to&nbsp;{" "}
+                <a href="/" className="text-decoration-none text-muted fw-bold">
+                  {" "}
+                  DigiDesk
+                </a>
               </h4>
               <h2 className="ms-5 pt-2">Create Your Account</h2>
             </div>
@@ -244,7 +301,56 @@ const Register = () => {
                     />
                     <label htmlFor="floatingInput">Password</label>
                   </div>
-                
+                  <div>
+                    <Button
+                      type="primary custom-button"
+                      className="text-light"
+                      onClick={showModal}
+                    >
+                      Select a Role
+                    </Button>
+                    <Modal
+                      title="Select a Role"
+                      className="custom-font"
+                      open={open}
+                      onOk={handleOk}
+                      onCancel={handleCancel}
+                      centered
+                      styles={{
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        minHeight: `${Math.min(filteredRoles.length * 40 + 100, 500)}px`,
+                      }}
+                      width={Math.min(filteredRoles.length * 200 + 50, 800)} // Increased the width
+                    >
+                      <label
+                        htmlFor="role"
+                        style={{ marginBottom: "1em", fontSize: "1.2em" }}
+                        className=""
+                      >
+                        Choose what represents the user the best
+                      </label>
+                      <select
+                        id="role"
+                        name="selectedRole"
+                        value={selectedRole}
+                        className="custom-font form-control"
+                        onChange={handleInputChange}
+                        style={{
+                          width: "100%",
+                          padding: "0.5em",
+                        }}
+                      >
+                        <option value="">Choose an option</option>
+                        {filteredRoles.map((role) => (
+                          <option key={role.id} value={role.name}>
+                            {role.name.replace("ROLE_", "")}
+                          </option>
+                        ))}
+                      </select>
+                    </Modal>
+                  </div>
                   <div className="password-validation-box">
                     <div className="password-validation">
                       <p className="px-3">Your password must have:</p>

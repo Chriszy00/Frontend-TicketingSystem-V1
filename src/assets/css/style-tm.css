@@ -642,4 +642,8 @@ body {
 	max-height: 500px; /* Set your desired maximum height */
 	overflow-y: auto;
   }
+
+  .white-icon {
+	color: white;
+  }
   
