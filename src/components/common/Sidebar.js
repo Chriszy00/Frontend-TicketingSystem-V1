@@ -29,9 +29,15 @@ const Sidebar = () => {
             </Link>
           </li>
           <li className="active">
-            <Link to="/user-management" id="orderManagementBtn">
+            <Link to="/ticket" id="orderManagementBtn">
               <i className="bx bxs-notepad"></i>
               <span className="text">Ticket</span>
+            </Link>
+          </li>
+          <li className="">
+            <Link to="/message">
+              <i className="bx bxs-message-dots"></i>
+              <span className="text">Message</span>
             </Link>
           </li>
         </ul>

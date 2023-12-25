@@ -4,7 +4,7 @@ import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-// import { BsEye, BsPencil, BsTrash } from "react-icons/bs";
+import { Modal, Select, notification } from "antd";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faPencilAlt, faTrash } from "@fortawesome/free-solid-svg-icons";
 
@@ -12,30 +12,41 @@ const TicketManagement = () => {
   // const [isDarkMode, setIsDarkMode] = useState(false);
   const navigate = useNavigate();
   const [status, setStatus] = useState([]);
-  const [priorities, setPriorities] = useState({});
+  const [selectedUserId, setSelectedUserId] = useState("");
+  const [internalUsers, setInternalUsers] = useState([]);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const { Option } = Select;
 
-  useEffect(() => {
-    fetchPriorities().then((data) => setPriorities(data));
-  }, []);
+  const showModal = () => {
+    setIsModalVisible(true);
+  };
 
-  const fetchPriorities = async () => {
-    try {
-      const response = await axios.get(
-        "http://localhost:8080/api/priorities" // Replace with your actual endpoint
-      );
-      if (response.status === 200) {
-        return response.data;
-      } else {
-        console.log("Error fetching priorities");
-        return [];
-      }
-    } catch (error) {
-      console.error("Error fetching priorities:", error.response.data);
-      return [];
+  const handleCancel = () => {
+    setIsModalVisible(false);
+  };
+
+  const handleOk = () => {
+    if (!selectedUserId) {
+      // Role is not selected, display an error message
+      notification.error({
+        message: "Error",
+        description: "Please select a role",
+      });
+    } else {
+      // Show selected role notification after a delay
+      setTimeout(() => {
+        notification.info({
+          message: "Selected Role",
+          description: `You selected: ${selectedUserId.replace("ROLE_", "")}`,
+        });
+      }, 500);
     }
+  
+    setIsModalVisible(false);
   };
 
   useEffect(() => {
+    fetchInternalUsers();
     fetchtTickets().then((r) => console.log("Status Fetched"));
   }, []);
 
@@ -106,26 +117,37 @@ const TicketManagement = () => {
     }
   };
 
-  const handleAssign = async (id) => {
+  const fetchInternalUsers = async () => {
+    try {
+      const response = await axios.get(
+        "http://localhost:8080/ticket/management/internal-users"
+      );
+      if (response.status === 200) {
+        setInternalUsers(response.data);
+      } else {
+        console.log("Error fetching internal users");
+      }
+    } catch (error) {
+      console.error("Error fetching internal users:", error.response.data);
+    }
+  };
+
+  const handleAssign = async (ticketId, userId) => {
     try {
       const response = await axios.put(
-        `http://localhost:8080/ticket/management/${id}/assigned`
+        `http://localhost:8080/ticket/management/${ticketId}/assigned/${userId}`
       );
+  
       if (response.status === 200) {
         // Update the status in the UI
         setStatus((prevStatus) =>
           prevStatus.map((status) =>
-            status.ticketId === id ? { ...status, status: "Assigned" } : status
+            status.ticketId === ticketId
+              ? { ...status, status: "Assigned" }
+              : status
           )
         );
-
-        // Update the status in the local state
-        setStatus((prevStatus) =>
-          prevStatus.map((status) =>
-            status.ticketId === id ? { ...status, status: "Assigned" } : status
-          )
-        );
-
+  
         // Toast and log messages
         toast.success("Ticket Assigned", {
           position: "top-right",
@@ -135,14 +157,19 @@ const TicketManagement = () => {
           pauseOnHover: true,
           draggable: true,
         });
-        console.log(`Ticket ${id} assigned successfully`);
+  
+        console.log(`Ticket ${ticketId} assigned successfully`);
       } else {
         console.log("Error assigning ticket");
       }
     } catch (error) {
       console.error("Error assigning ticket:", error.response.data);
+    } finally {
+      // Close the modal regardless of success or failure
+      setIsModalVisible(false);
     }
   };
+  
 
   const deleteTicket = async (id) => {
     try {
@@ -150,7 +177,10 @@ const TicketManagement = () => {
       const headers = {
         Authorization: "Bearer " + token,
       };
-      await axios.delete(`http://localhost:8080/api/ticket/deleteTicket/${id}`, { headers });
+      await axios.delete(
+        `http://localhost:8080/api/ticket/deleteTicket/${id}`,
+        { headers }
+      );
 
       // Fetch the updated list of tickets after successful deletion
       fetchtTickets().then(() => {
@@ -197,6 +227,14 @@ const TicketManagement = () => {
               <span className="text">Ticket Management</span>
             </Link>
           </li>
+
+          <li className="">
+            <Link to="/message">
+              <i className="bx bxs-book-alt"></i>
+              <span className="text">Message</span>
+            </Link>
+          </li>
+          
         </ul>
         <ul className="side-menu ps-0">
           <li>
@@ -252,32 +290,6 @@ const TicketManagement = () => {
                             <td className="px-4 py-3">
                               {application.creator.email}
                             </td>
-                            {/* <td className="px-4 py-3">
-                              <select
-                                className="form-select"
-                                defaultValue=""
-                                onChange={(e) => {
-                                  const selectedPriority = e.target.value;
-                                  // Update the state with the selected priority
-                                  setPriorities((prevPriorities) => ({
-                                    ...prevPriorities,
-                                    selectedPriority,
-                                  }));
-                                }}
-                              >
-                                <option value="" disabled>
-                                  Select Priority
-                                </option>
-                                {priorities.map((priority) => (
-                                  <option
-                                    key={priority.id}
-                                    value={priority.name}
-                                  >
-                                    {priority.name}
-                                  </option>
-                                ))}
-                              </select>
-                            </td> */}
 
                             {/* Display the status from the database */}
                             <td className="px-4 py-3">{application.status}</td>
@@ -294,13 +306,44 @@ const TicketManagement = () => {
                                   Resolved
                                 </button>
                                 <button
-                                  className="ml-2 btn btn-success me-2 rounded-1"
-                                  onClick={() =>
-                                    handleAssign(application.ticketId)
-                                  }
+                                  className="btn btn-success me-2 rounded-1"
+                                  onClick={showModal}
                                 >
-                                  Assigned
+                                  Assign
                                 </button>
+                                <Modal
+                                  title="Assign Ticket"
+                                  open={isModalVisible}
+                                  onCancel={handleCancel}
+                                  onOk={handleOk}
+                                  centered
+                                >
+                                  <Select
+                                    style={{ width: "100%" }}
+                                    placeholder="Select User"
+                                    value={selectedUserId}
+                                    onChange={(value) =>
+                                      setSelectedUserId(value)
+                                    }
+                                  >
+                                    {internalUsers.map((user) => (
+                                      <Option key={user.id} value={user.id}>
+                                        {user.lastName} ({user.email})
+                                      </Option>
+                                    ))}
+                                  </Select>
+                                  <button
+                                    className="btn btn-success mt-3"
+                                    onClick={() =>
+                                      handleAssign(
+                                        application.ticketId,
+                                        selectedUserId
+                                      )
+                                    }
+                                  >
+                                    Assign
+                                  </button>
+                                </Modal>
                                 <button
                                   className="btn btn-outline-primary btn-sm me-2 rounded-1 border-2"
                                   // onClick={() => handleView(application.id)}

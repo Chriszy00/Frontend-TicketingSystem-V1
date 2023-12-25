@@ -27,35 +27,42 @@ const TicketForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     try {
       const token = localStorage.getItem("accessToken");
       const headers = {
         Authorization: `Bearer ${token}`,
       };
-
+  
       const data = {
         title,
         description,
-        categoryNames: selectedCategory, // Change to categoryNames to match the backend
+        categoryNames: selectedCategory,
       };
-
+  
       const response = await axios.post(
         "http://localhost:8080/api/ticket/complaint",
         data,
         { headers }
       );
+  
       notification.success({
         message: "Complaint Submitted",
         description: "Your complaint has been submitted successfully",
       });
-
+  
+      // Reset or clear the form fields by updating state
+      setTitle("");
+      setDescription("");
+      setSelectedCategory("");
+  
       console.log(response.data); // Handle success response
-      
     } catch (error) {
-      console.error("Error submitting complaint:", error.response.data); // Handle error response
+      console.error("Error submitting complaint:", error.response.data);
+      // Handle error response
     }
   };
+  
 
   return (
     <div>
@@ -113,7 +120,7 @@ const TicketForm = () => {
                       </select>
                     </div>
                   </div>
-                  <div className="py-5 px-5"> 
+                  <div className="py-5 px-5">
                     <button
                       type="submit"
                       className="btn btn-lg btn-custom btn-block"

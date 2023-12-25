@@ -15,11 +15,11 @@ const Landing = () => {
           </div>
         </div>
         <div className="d-flex justify-content-end px-5">
-          <div className="px-3" style={{ fontSize: "1rem" }}>
+          {/* <div className="px-3" style={{ fontSize: "1rem" }}>
             <a className="text-white text-decoration-none" href="/register">
               Register
             </a>
-          </div>
+          </div> */}
           <div className="text-white px-3" style={{ fontSize: "1rem" }}>
             <a className="text-white text-decoration-none" href="/login">
               Login
@@ -43,7 +43,7 @@ const Landing = () => {
                 </div> */}
             <div className="row">
               <div className="col">
-                <button
+                {/* <button
                   onClick={() => (window.location.href = "/register")}
                   className="col btn py-2 me-3"
                   style={{
@@ -53,7 +53,7 @@ const Landing = () => {
                   }}
                 >
                   Register
-                </button>
+                </button> */}
                 <button
                   onClick={() => (window.location.href = "/login")}
                   className="col btn text-white py-2"
@@ -129,11 +129,11 @@ const Landing = () => {
             effortlessly with DigiDesk.
           </h6>
           <button
-            onClick={() => (window.location.href = "/register")}
+            onClick={() => (window.location.href = "/login")}
             className="col btn text-white px-5 py-2"
             style={{ fontSize: "1rem", background: "#051748" }}
           >
-            Join Us
+            Login
           </button>
         </div>
       </div>

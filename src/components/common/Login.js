@@ -1,7 +1,14 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "../../assets/css/style-t&c.css";
-import { ACCESS_TOKEN, FIRST_NAME, PHONE_NUMBER, ROLE_NAME, ID, EMAIL } from "../../constant/index";
+import {
+  ACCESS_TOKEN,
+  FIRST_NAME,
+  PHONE_NUMBER,
+  ROLE_NAME,
+  ID,
+  EMAIL,
+} from "../../constant/index";
 import { login } from "../../util/APIUtils";
 import { notification } from "antd";
 
@@ -15,7 +22,7 @@ function Login() {
     const loginRequest = {
       email: e.target.email.value,
       password: e.target.password.value,
-    }; 
+    };
 
     login(loginRequest)
       .then((response) => {
@@ -24,20 +31,39 @@ function Login() {
         localStorage.setItem(ID, response.userId);
         localStorage.setItem(ROLE_NAME, response.roleName);
         localStorage.setItem(EMAIL, response.email);
-        localStorage.setItem(isLoggedIn, true)
-        navigate("/dashboard", { replace: true });
+        localStorage.setItem(isLoggedIn, true);
 
+        // Determine the user's role and redirect accordingly
+        if (response.roleName === "ROLE_ADMINISTRATOR") {
+          navigate("/admin/user-management", {
+            state: { message: "Login Successful" },
+          });
+        } else if (response.roleName === "ROLE_USER") {
+          navigate("/ticket", {
+            state: { message: "Login Successful" },
+          });
+        } else if (response.roleName === "ROLE_INTERNAL") {
+          // navigate(/preparation/partner/${response.partnerId}, { state: { message: "Login Successful" } });
+          navigate("/internal/ticket-management", {
+            state: { message: "Login Successful" },
+          });
+        } else {
+          // Default redirection if the role is not recognized
+          navigate("/default", { state: { message: "Login Successful" } });
+        }
       })
       .catch((error) => {
         if (error.status === 400 || 401) {
           notification.error({
             message: "DigiDesk APP",
-            description: "Your Email and Password are incorrect. Please try again.",
+            description:
+              "Your Email and Password are incorrect. Please try again.",
           });
         } else {
           notification.error({
             message: "DigiDesk APP",
-            description: error.message || "Sorry! Something went wrong. Please try again.",
+            description:
+              error.message || "Sorry! Something went wrong. Please try again.",
           });
         }
       });
@@ -52,7 +78,12 @@ function Login() {
               <img src="#!" alt="logo" />
             </div>
             <h4 className="text-muted ms-5 pt-1">Welcome Back</h4>
-            <h2 className="ms-5 pt-2">Sign in to&nbsp;<a href="/" className="text-decoration-none text-black fw-bold">DigiDesk</a></h2>
+            <h2 className="ms-5 pt-2">
+              Sign in to&nbsp;
+              <a href="/" className="text-decoration-none text-black fw-bold">
+                DigiDesk
+              </a>
+            </h2>
           </div>
         </div>
         <div className="col-md-8 p-0">
@@ -60,7 +91,7 @@ function Login() {
             <div className="card-header bg-transparent px-5 pt-5 m-5 border-1">
               <h5 className="text-muted text-end py-2 pb-4">
                 Do not have an account?{" "}
-                <Link to="/register" className="TC fw-bold">
+                <Link to="/admin/register" className="TC fw-bold">
                   Sign Up
                 </Link>
               </h5>
