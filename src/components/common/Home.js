@@ -53,7 +53,7 @@ const Home = () => {
   const fetchtTickets = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:8080/ticket/management/allTickets"
+        "http://localhost:8080/user/management/allTickets"
       );
       if (response.status === 200) {
         setStatus(response.data);
@@ -230,7 +230,7 @@ const Home = () => {
 
           <li className="">
             <Link to="/message">
-              <i className="bx bxs-book-alt"></i>
+              <i className="bx bxs-message-dots"></i>
               <span className="text">Message</span>
             </Link>
           </li>
@@ -267,8 +267,8 @@ const Home = () => {
                         <tr className="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase border-b dark:border-gray-700 bg-gray-50 dark:text-gray-400 dark:bg-gray-800 custom-font-bold">
                           <th className="px-4 py-3 ">Ticket Id</th>
                           <th className="px-4 py-3 ">Title</th>
-                          <th className="px-4 py-3 text-center">Status</th>
-                          <th className="px-4 py-3 text-center" colSpan="5">
+                          <th className="px-4 py-3 ">Status</th>
+                          <th className="px-4 py-3 " colSpan="5">
                             Actions
                           </th>
                         </tr>

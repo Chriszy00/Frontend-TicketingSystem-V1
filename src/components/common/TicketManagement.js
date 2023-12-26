@@ -175,7 +175,7 @@ const TicketManagement = () => {
 
           <li className="">
             <Link to="/message">
-              <i className="bx bxs-book-alt"></i>
+              <i className="bx bxs-message-dots"></i>
               <span className="text">Message</span>
             </Link>
           </li>
@@ -266,12 +266,19 @@ const TicketManagement = () => {
                                     >
                                       Resolved
                                     </button>
+                                    {/* Edit button */}
                                     <button className="btn btn-outline-success btn-sm me-3 rounded-1 border-2">
                                       <FontAwesomeIcon icon={faPencilAlt} />
                                     </button>
+
+                                    {/* View button */}
                                     <button className="btn btn-outline-primary btn-sm me-3 rounded-1 border-2">
-                                      <FontAwesomeIcon icon={faEye} />
+                                      <Link to={`/page/${application.ticketId}`}>
+                                        <FontAwesomeIcon icon={faEye} />
+                                      </Link>
                                     </button>
+
+                                    {/* Delete button */}
                                     <button
                                       className="btn btn-outline-danger btn-sm rounded-1 border-2"
                                       onClick={() => {

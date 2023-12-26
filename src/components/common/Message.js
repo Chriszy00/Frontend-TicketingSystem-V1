@@ -34,7 +34,7 @@ const Sidebar = ({ roleName, handleLogout }) => {
         )}
         {roleName === "ROLE_INTERNAL" && (
           <li className="">
-            <Link to="/internal/ticket-management" id="ticketLink">
+            <Link to="/ticket-management" id="ticketLink">
               <i className="bx bxs-book-alt"></i>
               <span className="text">Ticket Management</span>
             </Link>
@@ -241,7 +241,7 @@ const Message = () => {
               <div className="row" style={{ height: "62vh" }}>
                 {/* ROLE_INTERNAL */}
                 {roleName === "ROLE_INTERNAL" ? (
-                  <div className="bg-primary col-3">
+                  <div className=" col-3">
                     <h5>Chats</h5>
                     {allUsers.map((user, index) => (
                       <div

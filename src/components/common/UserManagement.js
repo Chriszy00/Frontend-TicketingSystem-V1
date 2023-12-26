@@ -6,11 +6,14 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faPencilAlt, faTrash } from "@fortawesome/free-solid-svg-icons";
+import { Modal } from "antd";
 
 const UserManagement = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const navigate = useNavigate();
   const [users, setUsers] = useState([]);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
 
   useEffect(() => {
     fetchtUsers().then((r) => console.log("Users Fetched"));
@@ -19,7 +22,7 @@ const UserManagement = () => {
   const fetchtUsers = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:8080/user/management/allUsers" 
+        "http://localhost:8080/user/management/allUsers"
       );
       if (response.status === 200) {
         setUsers(response.data);
@@ -31,13 +34,44 @@ const UserManagement = () => {
     }
   };
 
+  const userDetails = async (id) => {
+    try {
+      const token = localStorage.getItem("accessToken");
+      const headers = {
+        Authorization: "Bearer " + token,
+      };
+
+      await axios.get(
+        `http://localhost:8080/user/management/userDetails/${id}`,
+        { headers }
+      );
+      fetchtUsers().then(() => {
+        // Toast and log messages
+        toast.success("User Deleted", {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
+        console.log(`Ticket ${id} deleted successfully`);
+      });
+    } catch (error) {
+      console.error("Error viewing user details:", error.response.data);
+    }
+  };
+
   const deleteUser = async (id) => {
     try {
       const token = localStorage.getItem("accessToken");
       const headers = {
         Authorization: "Bearer " + token,
       };
-      await axios.delete(`http://localhost:8080/user/management/deleteUser/${id}`, { headers });
+      await axios.delete(
+        `http://localhost:8080/user/management/deleteUser/${id}`,
+        { headers }
+      );
 
       // Fetch the updated list of tickets after successful deletion
       fetchtUsers().then(() => {
@@ -60,12 +94,16 @@ const UserManagement = () => {
   const handleLogout = () => {
     // Clear local storage
     localStorage.clear();
-  
+
     // Ensure local storage is cleared before navigating
     setTimeout(() => {
       console.log("Logged out");
       window.location.href = "/";
     }, 0);
+  };
+
+  const handleModalClose = () => {
+    setIsModalVisible(false);
   };
 
   return (
@@ -76,24 +114,32 @@ const UserManagement = () => {
           <span className="text">DigiDesk</span>
         </a>
         <ul className="side-menu top ps-0">
+          <li className="">
+            <Link to="/dashboard">
+              <i className="bx bxs-dashboard"></i>
+              <span className="text">Dashboard</span>
+            </Link>
+          </li>
           <li className="active">
             <Link to="/user-management" id="orderManagementBtn">
               <i className="bx bxs-user"></i>
               <span className="text">User Management</span>
             </Link>
           </li>
-          {/* <li className="">
-            <Link to="/internal/ticket-management" id="orderManagementBtn">
+          <li className="">
+            <Link to="/ticket-management" id="orderManagementBtn">
               <i className="bx bxs-book-alt"></i>
               <span className="text">Ticket Management</span>
             </Link>
-          </li> */}
+          </li>
         </ul>
         <ul className="side-menu ps-0">
           <li>
             <a href="/" className="logout">
               <i className="bx bxs-log-out-circle"></i>
-              <span className="text" onClick={handleLogout}>Logout</span>
+              <span className="text" onClick={handleLogout}>
+                Logout
+              </span>
             </a>
           </li>
         </ul>
@@ -131,31 +177,50 @@ const UserManagement = () => {
                             key={application.id}
                             className="text-gray-700 dark:text-gray-400"
                           >
-                            <td className="px-4 py-3">
-                              {application.id}
-                            </td>
+                            <td className="px-4 py-3">{application.id}</td>
                             <td className="px-4 py-3">
                               {application.firstName}
                             </td>
                             <td className="px-4 py-3">
                               {application.lastName}
                             </td>
-                            <td className="px-4 py-3">
-                              {application.email}
-                            </td>
-                           {/* Actions buttons */}
-                           <td className="px-4 py-3 fs-1">
+                            <td className="px-4 py-3">{application.email}</td>
+                            {/* Actions buttons */}
+                            <td className="px-4 py-3 fs-1">
                               <div className="btn-group">
+                                {/* Edit button */}
+                                <button className="btn btn-outline-success btn-sm me-3 rounded-1 border-2">
+                                  <FontAwesomeIcon icon={faPencilAlt} />
+                                </button>
+
+                                {/* View Button */}
                                 <button
                                   className="btn btn-outline-primary btn-sm me-3 rounded-1 border-2"
+                                  onClick={() => {
+                                    setSelectedUser(application);
+                                    setIsModalVisible(true);
+                                  }}
                                 >
                                   <FontAwesomeIcon icon={faEye} />
                                 </button>
-                                <button
-                                  className="btn btn-outline-success btn-sm me-3 rounded-1 border-2"
+                                <Modal
+                                  title="User Details"
+                                  open={isModalVisible}
+                                  onCancel={handleModalClose}
+                                  centered
                                 >
-                                  <FontAwesomeIcon icon={faPencilAlt} />
-                                </button>
+                                  {selectedUser && (
+                                    <div>
+                                      <p>
+                                        First Name: {selectedUser.firstName}
+                                      </p>
+                                      <p>Last Name: {selectedUser.lastName}</p>
+                                      <p>Email: {selectedUser.email}</p>
+                                    </div>
+                                  )}
+                                </Modal>
+
+                                {/* Delete button */}
                                 <button
                                   className="btn btn-outline-danger btn-sm rounded-1 border-2"
                                   onClick={() => {
