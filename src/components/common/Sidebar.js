@@ -23,7 +23,7 @@ const Sidebar = () => {
         </a>
         <ul className="side-menu ps-0">
           <li className="">
-            <Link to="/" id="dashboardBtn">
+            <Link to="/dashboard">
               <i className="bx bxs-dashboard"></i>
               <span className="text">Dashboard</span>
             </Link>
