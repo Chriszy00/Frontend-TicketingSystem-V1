@@ -24,7 +24,7 @@ class App extends Component {
           <Route path="/login" element={<Login />} />
           <Route path="/admin/register" element={<Register />} />
           <Route path="/ticket" element={<TicketForm/>} />
-          <Route path="/page" element={<TicketPage/>} />
+          <Route path="/page/:id" element={<TicketPage/>} />
           <Route path="/message" element={<Message />} />
           <Route path="/internal/ticket-management" element={<TicketManagement/>} />
           <Route path="/admin/user-management" element={<UserManagement/>} />
