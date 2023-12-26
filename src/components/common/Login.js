@@ -44,7 +44,7 @@ function Login() {
           });
         } else if (response.roleName === "ROLE_INTERNAL") {
           // navigate(/preparation/partner/${response.partnerId}, { state: { message: "Login Successful" } });
-          navigate("/internal/ticket-management", {
+          navigate("/ticket-management", {
             state: { message: "Login Successful" },
           });
         } else {

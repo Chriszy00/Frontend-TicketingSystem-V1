@@ -9,6 +9,58 @@ import "./admin.js";
 import SockJS from "sockjs-client";
 import Stomp from "stompjs";
 
+const Sidebar = ({ roleName, handleLogout }) => {
+  return (
+    <section id="sidebar">
+      <a href="/" className="brand">
+        <i className="bx bx-desktop"></i>
+        <span className="text">DigiDesk</span>
+      </a>
+      <ul className="side-menu top ps-0">
+        <li className="">
+          <a href="/" id="dashboardBtn">
+            <i className="bx bxs-dashboard"></i>
+            <span className="text">Dashboard</span>
+          </a>
+        </li>
+        {/* Conditionally render the ticket link based on user role */}
+        {roleName !== "ROLE_INTERNAL" && (
+          <li className="">
+            <Link to="/ticket" id="ticketLink">
+              <i className="bx bxs-notepad"></i>
+              <span className="text">Ticket</span>
+            </Link>
+          </li>
+        )}
+        {roleName === "ROLE_INTERNAL" && (
+          <li className="">
+            <Link to="/internal/ticket-management" id="ticketLink">
+              <i className="bx bxs-book-alt"></i>
+              <span className="text">Ticket Management</span>
+            </Link>
+          </li>
+        )}
+        <li className="active">
+          <Link to="/message">
+            <i className="bx bxs-message-dots"></i>
+            <span className="text">Message</span>
+          </Link>
+        </li>
+      </ul>
+      <ul className="side-menu ps-0">
+        <li>
+          <a href="/" className="logout">
+            <i className="bx bxs-log-out-circle"></i>
+            <span className="text" onClick={handleLogout}>
+              Logout
+            </span>
+          </a>
+        </li>
+      </ul>
+    </section>
+  );
+};
+
 const Message = () => {
   const [messageInput, setMessageInput] = useState("");
   const [replyInput, setReplyInput] = useState("");
@@ -171,41 +223,7 @@ const Message = () => {
 
   return (
     <div>
-      <section id="sidebar">
-        <a href="/" class="brand">
-          <i className="bx bx-desktop"></i>
-          <span class="text">DigiDesk</span>
-        </a>
-        <ul class="side-menu top ps-0">
-          <li class="">
-            <a href="/" id="dashboardBtn">
-              <i class="bx bxs-dashboard"></i>
-              <span class="text">Dashboard</span>
-            </a>
-          </li>
-          <li className="">
-            <Link to="/ticket" id="orderManagementBtn">
-              <i className="bx bxs-notepad"></i>
-              <span className="text">Ticket</span>
-            </Link>
-          </li>
-          <li className="active">
-            <Link to="/message">
-              <i class="bx bxs-message-dots"></i>
-              <span class="text">Message</span>
-            </Link>
-          </li>
-        </ul>
-        <ul class="side-menu ps-0">
-          <li>
-            <a href="/" class="logout">
-              <i class="bx bxs-log-out-circle"></i>
-              <span class="text" onClick={handleLogout}>Logout</span>
-            </a>
-          </li>
-        </ul>
-      </section>
-
+      <Sidebar roleName={roleName} handleLogout={handleLogout} />
       <section id="content">
         <nav>
           <i class="bx bx-menu"></i>
@@ -251,7 +269,7 @@ const Message = () => {
                         <div
                           key={index}
                           className={`px-3 py-1 mb-1 rounded-5 text-white ${
-                            message.sender.id == localStorage.getItem("userId")
+                            message.sender.id === localStorage.getItem("userId")
                               ? "bg-primary ms-auto"
                               : "bg-secondary"
                           }`}

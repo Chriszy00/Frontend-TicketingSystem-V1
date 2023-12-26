@@ -88,6 +88,12 @@ const UserManagement = () => {
               <span className="text">User Management</span>
             </Link>
           </li>
+          {/* <li className="">
+            <Link to="/internal/ticket-management" id="orderManagementBtn">
+              <i className="bx bxs-book-alt"></i>
+              <span className="text">Ticket Management</span>
+            </Link>
+          </li> */}
         </ul>
         <ul className="side-menu ps-0">
           <li>

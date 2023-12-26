@@ -8,52 +8,24 @@ import { Modal, Select, notification } from "antd";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faPencilAlt, faTrash } from "@fortawesome/free-solid-svg-icons";
 
+const { Option } = Select;
+
 const TicketManagement = () => {
-  // const [isDarkMode, setIsDarkMode] = useState(false);
-  const navigate = useNavigate();
   const [status, setStatus] = useState([]);
-  const [selectedUserId, setSelectedUserId] = useState("");
   const [internalUsers, setInternalUsers] = useState([]);
-  const [isModalVisible, setIsModalVisible] = useState(false);
-  const { Option } = Select;
-
-  const showModal = () => {
-    setIsModalVisible(true);
-  };
-
-  const handleCancel = () => {
-    setIsModalVisible(false);
-  };
-
-  const handleOk = () => {
-    if (!selectedUserId) {
-      // Role is not selected, display an error message
-      notification.error({
-        message: "Error",
-        description: "Please select a role",
-      });
-    } else {
-      // Show selected role notification after a delay
-      setTimeout(() => {
-        notification.info({
-          message: "Selected Role",
-          description: `You selected: ${selectedUserId.replace("ROLE_", "")}`,
-        });
-      }, 500);
-    }
-  
-    setIsModalVisible(false);
-  };
+  const [selectedUserId, setSelectedUserId] = useState("");
+  const roleName = localStorage.getItem("roleName");
+  const token = localStorage.getItem("accessToken");
 
   useEffect(() => {
     fetchInternalUsers();
-    fetchtTickets().then((r) => console.log("Status Fetched"));
+    fetchTickets().then((r) => console.log("Status Fetched"));
   }, []);
 
-  const fetchtTickets = async () => {
+  const fetchTickets = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:8080/ticket/management/allTickets"
+        "http://localhost:8080/user/management/allTickets"
       );
       if (response.status === 200) {
         setStatus(response.data);
@@ -61,23 +33,17 @@ const TicketManagement = () => {
         console.log("Error fetching status");
       }
     } catch (error) {
-      console.error("Error fetching status:", error.response.data); // Handle error response
+      console.error("Error fetching status:", error.response.data);
     }
   };
 
   const handleLogout = () => {
-    // Clear local storage
     localStorage.clear();
-
-    // Ensure local storage is cleared before navigating
     setTimeout(() => {
       console.log("Logged out");
       window.location.href = "/";
     }, 0);
   };
-
-  // const [disableApproveButton, setDisableApproveButton] = useState(false);
-  // const [disableDenyButton, setDisableDenyButton] = useState(false);
 
   const handleResolve = async (id) => {
     try {
@@ -85,21 +51,7 @@ const TicketManagement = () => {
         `http://localhost:8080/ticket/management/${id}/resolved`
       );
       if (response.status === 200) {
-        // Update the status in the UI
-        setStatus((prevStatus) =>
-          prevStatus.map((status) =>
-            status.ticketId === id ? { ...status, status: "Resolved" } : status
-          )
-        );
-
-        // Update the status in the local state
-        setStatus((prevStatus) =>
-          prevStatus.map((status) =>
-            status.ticketId === id ? { ...status, status: "Resolved" } : status
-          )
-        );
-
-        // Toast and log messages
+        updateStatus(id, "Resolved");
         toast.success("Ticket Resolved", {
           position: "top-right",
           autoClose: 3000,
@@ -134,21 +86,19 @@ const TicketManagement = () => {
 
   const handleAssign = async (ticketId, userId) => {
     try {
-      const response = await axios.put(
-        `http://localhost:8080/ticket/management/${ticketId}/assigned/${userId}`
+      const token = localStorage.getItem("accessToken");
+      const headers = {
+        Authorization: "Bearer " + token,
+      };
+
+      const response = await axios.post(
+        `http://localhost:8080/ticket/management/${ticketId}/assigned/${userId}`,
+        { assignedUserId: userId },
+        { headers }
       );
-  
+
       if (response.status === 200) {
-        // Update the status in the UI
-        setStatus((prevStatus) =>
-          prevStatus.map((status) =>
-            status.ticketId === ticketId
-              ? { ...status, status: "Assigned" }
-              : status
-          )
-        );
-  
-        // Toast and log messages
+        updateStatus(ticketId, "Assigned");
         toast.success("Ticket Assigned", {
           position: "top-right",
           autoClose: 3000,
@@ -157,19 +107,14 @@ const TicketManagement = () => {
           pauseOnHover: true,
           draggable: true,
         });
-  
         console.log(`Ticket ${ticketId} assigned successfully`);
       } else {
         console.log("Error assigning ticket");
       }
     } catch (error) {
       console.error("Error assigning ticket:", error.response.data);
-    } finally {
-      // Close the modal regardless of success or failure
-      setIsModalVisible(false);
     }
   };
-  
 
   const deleteTicket = async (id) => {
     try {
@@ -182,10 +127,8 @@ const TicketManagement = () => {
         { headers }
       );
 
-      // Fetch the updated list of tickets after successful deletion
-      fetchtTickets().then(() => {
-        // Toast and log messages
-        toast.success("User Deleted", {
+      fetchTickets().then(() => {
+        toast.success("Ticket Deleted", {
           position: "top-right",
           autoClose: 3000,
           hideProgressBar: false,
@@ -200,11 +143,13 @@ const TicketManagement = () => {
     }
   };
 
-  // const userID = localStorage.getItem("userId");
-
-  // const handleSwitchChange = () => {
-  //   setIsDarkMode((prevMode) => !prevMode);
-  // };
+  const updateStatus = (ticketId, newStatus) => {
+    setStatus((prevStatus) =>
+      prevStatus.map((status) =>
+        status.ticketId === ticketId ? { ...status, status: newStatus } : status
+      )
+    );
+  };
 
   return (
     <div>
@@ -215,10 +160,10 @@ const TicketManagement = () => {
         </a>
         <ul className="side-menu top ps-0">
           <li className="">
-            <a href="!#" id="dashboardBtn">
+            <Link to="/dashboard">
               <i className="bx bxs-dashboard"></i>
               <span className="text">Dashboard</span>
-            </a>
+            </Link>
           </li>
 
           <li className="active">
@@ -234,7 +179,6 @@ const TicketManagement = () => {
               <span className="text">Message</span>
             </Link>
           </li>
-          
         </ul>
         <ul className="side-menu ps-0">
           <li>
@@ -265,12 +209,12 @@ const TicketManagement = () => {
                     <table className="w-full whitespace-no-wrap">
                       <thead>
                         <tr className="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase border-b dark:border-gray-700 bg-gray-50 dark:text-gray-400 dark:bg-gray-800 custom-font-bold">
-                          <th className="px-4 py-3 ">User ID</th>
-                          <th className="px-4 py-3 ">Last Name</th>
-                          <th className="px-4 py-3 text-center">Email</th>
+                          <th className="px-4 py-3 ">Ticket ID</th>
+                          <th className="px-4 py-3 ">User</th>
+                          <th className="px-4 py-3 ">Title</th>
                           {/* <th className="px-4 py-3 text-center">Priority</th> */}
-                          <th className="px-4 py-3 text-center">Status</th>
-                          <th className="px-4 py-3 text-center" colSpan="5">
+                          <th className="px-4 py-3 ">Status</th>
+                          <th className="px-4 py-3 " colSpan="5">
                             Actions
                           </th>
                         </tr>
@@ -285,91 +229,65 @@ const TicketManagement = () => {
                               {application.ticketId}
                             </td>
                             <td className="px-4 py-3">
+                              {application.creator.firstName}{" "}
                               {application.creator.lastName}
                             </td>
-                            <td className="px-4 py-3">
-                              {application.creator.email}
-                            </td>
-
-                            {/* Display the status from the database */}
+                            <td className="px-4 py-3">{application.title}</td>
                             <td className="px-4 py-3">{application.status}</td>
-
-                            {/* Actions buttons */}
                             <td className="px-4 py-3 fs-1">
                               <div className="btn-group">
-                                <button
-                                  className="btn btn-primary me-2 rounded-1"
-                                  onClick={() =>
-                                    handleResolve(application.ticketId)
-                                  }
-                                >
-                                  Resolved
-                                </button>
-                                <button
-                                  className="btn btn-success me-2 rounded-1"
-                                  onClick={showModal}
-                                >
-                                  Assign
-                                </button>
-                                <Modal
-                                  title="Assign Ticket"
-                                  open={isModalVisible}
-                                  onCancel={handleCancel}
-                                  onOk={handleOk}
-                                  centered
-                                >
-                                  <Select
-                                    style={{ width: "100%" }}
-                                    placeholder="Select User"
-                                    value={selectedUserId}
-                                    onChange={(value) =>
-                                      setSelectedUserId(value)
-                                    }
-                                  >
-                                    {internalUsers.map((user) => (
-                                      <Option key={user.id} value={user.id}>
-                                        {user.lastName} ({user.email})
-                                      </Option>
-                                    ))}
-                                  </Select>
-                                  <button
-                                    className="btn btn-success mt-3"
-                                    onClick={() =>
-                                      handleAssign(
-                                        application.ticketId,
-                                        selectedUserId
-                                      )
-                                    }
-                                  >
-                                    Assign
-                                  </button>
-                                </Modal>
-                                <button
-                                  className="btn btn-outline-primary btn-sm me-2 rounded-1 border-2"
-                                  // onClick={() => handleView(application.id)}
-                                >
-                                  <FontAwesomeIcon icon={faEye} />
-                                </button>
-                                <button
-                                  className="btn btn-outline-success btn-sm me-2 rounded-1 border-2"
-                                  // onClick={() => handleEdit(application.id)}
-                                >
-                                  <FontAwesomeIcon icon={faPencilAlt} />
-                                </button>
-                                <button
-                                  className="btn btn-outline-danger btn-sm rounded-1 border-2"
-                                  onClick={() => {
-                                    if (
-                                      window.confirm(
-                                        "Are you sure you want to delete this user?"
-                                      )
-                                    ) {
-                                      deleteTicket(application.ticketId);
-                                    }
+                                {/* Assign Dropdown (visible for all users) */}
+                                <Select
+                                  style={{
+                                    width: 120,
                                   }}
+                                  placeholder="Assign"
+                                  className="me-3 custom-select" // Add your custom class for additional styling
+                                  onChange={(value) =>
+                                    handleAssign(application.ticketId, value)
+                                  }
+                                  disabled={application.status === "Assigned"}
                                 >
-                                  <FontAwesomeIcon icon={faTrash} />
-                                </button>
+                                  {internalUsers.map((user) => (
+                                    <Option key={user.id} value={user.id}>
+                                      {user.id} ({user.email})
+                                    </Option>
+                                  ))}
+                                </Select>
+
+                                {/* Hide these buttons for ROLE_ADMINISTRATOR */}
+                                {roleName !== "ROLE_ADMINISTRATOR" && (
+                                  <>
+                                    <button
+                                      className="btn btn-primary me-2 rounded-1"
+                                      onClick={() =>
+                                        handleResolve(application.ticketId)
+                                      }
+                                    >
+                                      Resolved
+                                    </button>
+                                    <button className="btn btn-outline-success btn-sm me-3 rounded-1 border-2">
+                                      <FontAwesomeIcon icon={faPencilAlt} />
+                                    </button>
+                                    <button className="btn btn-outline-primary btn-sm me-3 rounded-1 border-2">
+                                      <FontAwesomeIcon icon={faEye} />
+                                    </button>
+                                    <button
+                                      className="btn btn-outline-danger btn-sm rounded-1 border-2"
+                                      onClick={() => {
+                                        if (
+                                          window.confirm(
+                                            "Are you sure you want to delete this ticket?"
+                                          )
+                                        ) {
+                                          deleteTicket(application.ticketId);
+                                        }
+                                      }}
+                                    >
+                                      <FontAwesomeIcon icon={faTrash} />
+                                    </button>
+                                  </>
+                                )}
                               </div>
                             </td>
                           </tr>
