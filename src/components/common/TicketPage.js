@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import Sidebar from "./Sidebar";
 import { useParams } from 'react-router-dom';
+import "bootstrap/dist/css/bootstrap.min.css";
 import axios from 'axios';
 
 const TicketPage = () => {
@@ -141,35 +143,42 @@ const TicketPage = () => {
   
 
   return (
-    <div>
-      <h2>Ticket Page</h2>
+    <div className='bg-white p-5 rounded-5'>
       <p>Ticket ID: {id}</p>
 
       {ticketData ? (
         <div>
-          <h3>{ticketData.title}</h3>
+          <h2>{ticketData.title}</h2>
+          <br></br>
           <p>Description: {ticketData.description}</p>
-          <p>Date: {ticketData.date}</p>
-          <p>Assigned: {ticketData.assigned}</p>
+          <p>Creator: {ticketData.creator.firstName} {ticketData.creator.lastName}</p>
+          {ticketData.category && (
+            <>
+                <p>Category: {ticketData.category.name}</p>
+            </>
+        )}
+          {/* {ticketData.priority && (
+            <>
+                <p>Priority: {ticketData.priority.name}</p>
+            </>
+        )} */}
           <p>Status: {ticketData.status}</p>
+          <br></br>
           <hr></hr>
 
           <form onSubmit={handleCommentSubmit}>
-            <label>
-              Comment:
-              <textarea
+              <input placeholder="Write your comment..." className='ps-3 border rounded-3 ms-3' style={{height:'4vh',width:'90%'}}
                 value={commentInput}
                 onChange={(e) => setCommentInput(e.target.value)}
               />
-            </label>
-            <button type="submit">Add Comment</button>
+            <button className='btn btn-outline-primary py-1 ms-3' type="submit">Comment</button>
           </form>
           <hr></hr>
-          <h2>Comments</h2>
+          <h5 className='mb-3'>Comments</h5>
           {commentsData.map((comment) => (
             <div key={comment.id}>
-              <p>Comment ID: {comment.id}</p>
-              <p>Text: {comment.comment}</p>
+              <h6 className='mt-4 m-0'>{comment.user.firstName} {comment.user.lastName}</h6>
+              <p className='m-0 p-0'>{comment.comment}</p>
               {/* <form onSubmit={(e) => handleReplySubmit(e, comment.id)}>
                     <label>
                     Reply:
@@ -180,26 +189,25 @@ const TicketPage = () => {
                     </label>
                     <button type="submit">Add Reply</button>
                 </form> */}
-              <button onClick={() => toggleReplyForm(comment.id)}>Add Reply</button>
+              <button className='btn p-0 m-0' style={{fontSize:'12px'}} onClick={() => toggleReplyForm(comment.id)}>Reply</button>
               {replyFormCommentId === comment.id && (
-                <form onSubmit={() => handleReplySubmit(comment.id)}>
-                  <label>
-                    Reply:
-                    <textarea value={replyInput} onChange={(e) => setReplyInput(e.target.value)} />
-                  </label>
-                  <button type="submit">Add Reply</button>
-                </form>
-              )}
-
-              {/* Display repliesData for the current comment */}
-              <ul>
+                <div>
+                  <h6 className='mt-3 ps-4'>Replies</h6>
+                  <ul>
                 {repliesData[comment.id] &&
                   repliesData[comment.id].map((reply) => (
                     <li key={reply.id}>
-                      Reply ID: {reply.id}, Text: {reply.reply}
+                      <h6 style={{fontSize:'14px'}} className='mt-3 m-0'>{reply.user.firstName} {reply.user.lastName}</h6>
+                      <p style={{fontSize:'15px'}}  className='m-0'>{reply.reply}</p>
                     </li>
                   ))}
               </ul>
+                <form onSubmit={() => handleReplySubmit(comment.id)}>
+                    <input placeholder="Write your reply..." className='ps-3 border rounded-3 ms-3' style={{height:'4vh',width:'90%'}} value={replyInput} onChange={(e) => setReplyInput(e.target.value)} />
+                    <button className='btn btn-outline-primary py-1 ms-3' type="submit">Reply</button>
+                </form>
+                </div>
+              )}
             </div>
           ))}
         </div>
@@ -210,4 +218,17 @@ const TicketPage = () => {
   );
 };
 
-export default TicketPage;
+// export default TicketPage;
+
+const TicketPageContainer = () => {
+  return (
+    <div>
+      <Sidebar />
+      <div id="content" className="p-4">
+        <TicketPage />
+      </div>
+    </div>
+  );
+};
+
+export default TicketPageContainer;
