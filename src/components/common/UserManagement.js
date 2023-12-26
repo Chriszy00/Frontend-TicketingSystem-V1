@@ -76,12 +76,6 @@ const UserManagement = () => {
           <span className="text">DigiDesk</span>
         </a>
         <ul className="side-menu top ps-0">
-          <li className="">
-            <a href="!#" id="dashboardBtn">
-              <i className="bx bxs-dashboard"></i>
-              <span className="text">Dashboard</span>
-            </a>
-          </li>
           <li className="active">
             <Link to="/user-management" id="orderManagementBtn">
               <i className="bx bxs-user"></i>

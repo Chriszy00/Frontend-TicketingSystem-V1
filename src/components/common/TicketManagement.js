@@ -215,10 +215,10 @@ const TicketManagement = () => {
         </a>
         <ul className="side-menu top ps-0">
           <li className="">
-            <a href="!#" id="dashboardBtn">
+            <Link to="/dashboard">
               <i className="bx bxs-dashboard"></i>
               <span className="text">Dashboard</span>
-            </a>
+            </Link>
           </li>
 
           <li className="active">
